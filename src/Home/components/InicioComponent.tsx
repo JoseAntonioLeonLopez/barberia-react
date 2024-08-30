@@ -1,5 +1,5 @@
 import React from "react";
-import { Button } from "@nextui-org/react"; // Asegúrate de que estos componentes están correctamente importados
+import { Button } from "@nextui-org/react"; 
 import { useNavigate } from "react-router-dom";
 
 const InicioComponent: React.FC = () => {
@@ -15,22 +15,22 @@ const InicioComponent: React.FC = () => {
       />
 
       {/* Contenido principal */}
-      <div className="relative z-10 flex flex-col items-center justify-center h-screen">
-        <div className="text-center">
+      <div className="relative z-10 flex flex-col items-center justify-center h-screen p-4 sm:p-8">
+        <div className="text-center mb-40">
           {/* Texto de bienvenida */}
-          <h1 className="text-6xl font-bold text-barber-primary">
+          <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold text-barber-primary">
             Bienvenido a nuestra barbería
           </h1>
 
-          <p className="mt-4 text-2xl">
+          <p className="mt-4 text-base sm:text-lg md:text-2xl">
             Cuidamos tu estilo con los mejores servicios
           </p>
 
           {/* Espaciado */}
-          <div className="mt-8 flex justify-center gap-4">
+          <div className="mt-8 flex flex-col sm:flex-row justify-center gap-4">
             {/* Botones de acción */}
             <Button
-              className="mr-4 shadow-lg bg-barber-primary"
+              className="w-full sm:w-auto shadow-lg bg-barber-primary text-sm sm:text-base"
               size="lg"
               onPress={() => navigate("/services")}
             >
@@ -39,8 +39,8 @@ const InicioComponent: React.FC = () => {
 
             <Button
               color="primary"
+              className="w-full sm:w-auto shadow-lg text-sm sm:text-base"
               size="lg"
-              className="shadow-lg"
               onPress={() => navigate("/booking")}
             >
               Reservar Cita
