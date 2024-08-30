@@ -10,12 +10,12 @@ const PreciosComponent: React.FC = () => {
     },
     {
       title: "Afeitado Clásico",
-      img: "https://img.freepik.com/foto-gratis/peluqueria-profesional-modelando-barba-barberia-cerca-foto_613910-18422.jpg?t=st=1725008459~exp=1725012059~hmac=d20c037bc8b87d02273c39c76c243b3dc75320a2ff3f14f688b2b59ca62246c2&w=996", // Imagen ilustrativa de afeitado
+      img: "https://www.elaristocrata.com/wp-content/uploads/2022/10/Fot1.jpeg", // Imagen ilustrativa de afeitado
       price: "€10.00",
     },
     {
       title: "Tinte de Barba",
-      img: "https://img.freepik.com/foto-gratis/peinando-canas-cliente-senior-barberia_23-2148181900.jpg?t=st=1725008498~exp=1725012098~hmac=657f697e621ad78321f9d387dff62160ac14c3afe2df5f4cb1ceea79f8b1465d&w=996", // Imagen ilustrativa de tinte de barba
+      img: "https://www.alpel.es/i/u/como-hacer-afeitado-clasico.jpg", // Imagen ilustrativa de tinte de barba
       price: "€12.50",
     },
     {
@@ -30,7 +30,7 @@ const PreciosComponent: React.FC = () => {
     },
     {
       title: "Corte Infantil",
-      img: "https://img.freepik.com/foto-gratis/nino-cortandose-pelo-vista-frontal_23-2149870361.jpg?t=st=1725008531~exp=1725012131~hmac=e42a9b79eac7cbc10a48aa4bee347683ddd20fc6f329e14268b99aad616caf47&w=996", // Imagen ilustrativa de corte infantil
+      img: "https://static.2x3cdn.com/assets/seo-keywords/mobile_square/jpeg/MdZZu7FDEq0Z.jpeg", // Imagen ilustrativa de corte infantil
       price: "€10.00",
     }
   ];
