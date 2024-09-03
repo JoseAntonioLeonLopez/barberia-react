@@ -6,7 +6,8 @@ const LogoutComponent = () => {
 
   useEffect(() => {
     // Aquí colocas la lógica para cerrar sesión (por ejemplo, eliminar tokens)
-    localStorage.removeItem("token"); // Eliminar el token o cualquier dato de sesión
+    sessionStorage.removeItem("access_token"); // Asegúrate de que esta clave coincide con la utilizada para almacenar el token
+
     // Redirigir al usuario a la página de autenticación
     navigate("/auth");
   }, [navigate]);

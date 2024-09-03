@@ -1,37 +1,34 @@
 import React, { useState } from "react";
-import { Calendar, Button, Input, Select, SelectItem } from "@nextui-org/react";
+import { Calendar, Button, Input, Select, SelectItem, useDisclosure } from "@nextui-org/react";
 import { getLocalTimeZone, today } from "@internationalized/date";
 import { DateValue } from "@react-types/calendar";
 import { isHoliday, formatDate } from "../utils/dateUtils";
-import { generateTimeSlots } from "../utils/timeUtils";
+import { afternoon, morning } from "../utils/timeUtils";
+import { ModalConfirmacion } from "./ModalConfirmacion"; // Importar el modal de confirmación
 
 const ReservarCitaComponent: React.FC = () => {
   const [selectedDate, setSelectedDate] = useState<DateValue | null>(null);
   const [selectedTime, setSelectedTime] = useState<string | null>(null);
   const [timePeriod, setTimePeriod] = useState<"morning" | "afternoon" | null>(null);
+  const { isOpen, onOpen, onOpenChange } = useDisclosure(); // Usar useDisclosure para el modal
 
   // Obtener la fecha actual con formato de CalendarDate
   const todayDate = today(getLocalTimeZone());
-
-  // Limitar a 3 meses en el futuro
   const maxDate = todayDate.add({ months: 3 });
 
   // Verificar si la fecha está disponible
   const isDateUnavailable = (date: DateValue) => {
-    const jsDate = new Date(date.year, date.month - 1, date.day); // Convertir DateValue a Date
+    const jsDate = new Date(date.year, date.month - 1, date.day);
     const dayOfWeek = jsDate.getDay();
-
     return (
-      date.compare(todayDate) < 0 || // Bloquear fechas pasadas
-      dayOfWeek === 0 || // Bloquear domingos
-      isHoliday(date) // Bloquear días festivos
+      date.compare(todayDate) < 0 || dayOfWeek === 0 || isHoliday(date)
     );
   };
 
   const handleDateChange = (date: DateValue) => {
     setSelectedDate(date);
-    setSelectedTime(null); // Reiniciar la selección de tiempo al cambiar la fecha
-    setTimePeriod(null); // Reiniciar la selección de periodo de tiempo
+    setSelectedTime(null);
+    setTimePeriod(null);
   };
 
   const handleTimeChange = (value: string) => {
@@ -40,18 +37,17 @@ const ReservarCitaComponent: React.FC = () => {
 
   const handleSubmit = () => {
     if (selectedDate && selectedTime) {
-      alert(`Cita reservada para el ${formatDate(selectedDate)} a las ${selectedTime}`);
+      // Abrir el modal de confirmación
+      onOpen();
     }
   };
 
-  // Determinar si es sábado
-  const isSaturday = selectedDate ? new Date(selectedDate.year, selectedDate.month - 1, selectedDate.day).getDay() === 6 : false;
+  const isSaturday = selectedDate
+    ? new Date(selectedDate.year, selectedDate.month - 1, selectedDate.day).getDay() === 6
+    : false;
 
-  // Generar las opciones de tiempo
-  const morningSlots = generateTimeSlots(10, 13.30);
-  const afternoonSlots = generateTimeSlots(17, 20.30);
-
-  // Obtener los slots de tiempo basados en el periodo seleccionado
+  const morningSlots = morning;
+  const afternoonSlots = afternoon;
   const availableSlots = timePeriod === "morning" ? morningSlots : timePeriod === "afternoon" ? afternoonSlots : [...morningSlots, ...afternoonSlots];
 
   return (
@@ -60,21 +56,16 @@ const ReservarCitaComponent: React.FC = () => {
 
       {/* Calendario para elegir fecha */}
       <Calendar
-        minValue={todayDate} // Bloquear días anteriores a hoy
-        maxValue={maxDate} // Limitar a 3 meses
-        isDateUnavailable={isDateUnavailable} // Validaciones de fecha
-        onChange={handleDateChange} // Manejar cambio de fecha
+        minValue={todayDate}
+        maxValue={maxDate}
+        isDateUnavailable={isDateUnavailable}
+        onChange={handleDateChange}
         value={selectedDate}
       />
 
       {/* Mostrar la fecha seleccionada */}
       <div className="mt-4">
-        <Input
-          readOnly
-          disabled
-          value={formatDate(selectedDate)}
-          label="Fecha seleccionada"
-        />
+        <Input readOnly disabled value={formatDate(selectedDate)} label="Fecha seleccionada" />
       </div>
 
       {/* Botones para seleccionar Mañana o Tarde */}
@@ -82,25 +73,16 @@ const ReservarCitaComponent: React.FC = () => {
         <div className="mt-4 flex space-x-4">
           {!isSaturday && (
             <>
-              <Button
-                onPress={() => setTimePeriod("morning")}
-                color={timePeriod === "morning" ? "primary" : "default"}
-              >
+              <Button onPress={() => setTimePeriod("morning")} color={timePeriod === "morning" ? "primary" : "default"}>
                 Mañana
               </Button>
-              <Button
-                onPress={() => setTimePeriod("afternoon")}
-                color={timePeriod === "afternoon" ? "primary" : "default"}
-              >
+              <Button onPress={() => setTimePeriod("afternoon")} color={timePeriod === "afternoon" ? "primary" : "default"}>
                 Tarde
               </Button>
             </>
           )}
           {isSaturday && (
-            <Button
-              onPress={() => setTimePeriod("morning")}
-              color={timePeriod === "morning" ? "primary" : "default"}
-            >
+            <Button onPress={() => setTimePeriod("morning")} color={timePeriod === "morning" ? "primary" : "default"}>
               Mañana
             </Button>
           )}
@@ -109,30 +91,25 @@ const ReservarCitaComponent: React.FC = () => {
 
       {/* Selección de hora */}
       {selectedDate && timePeriod && (
-        <div className="mt-4 flex flex-col items-center">
-          <Select
-            placeholder="Selecciona una hora"
-            value={selectedTime || ""}
-            onChange={(e) => handleTimeChange(e.target.value)}
-            fullWidth
-          >
-            {availableSlots.map(slot => (
-              <SelectItem key={slot} value={slot}>
-                {slot}
-              </SelectItem>
-            ))}
-          </Select>
-        </div>
+        <Select placeholder="Selecciona una hora" value={selectedTime || ""} onChange={(e) => handleTimeChange(e.target.value)} fullWidth className="w-64 mt-4">
+          {availableSlots.map((slot) => (
+            <SelectItem key={slot.key}>{slot.label}</SelectItem>
+          ))}
+        </Select>
       )}
 
       {/* Botón para confirmar la cita */}
-      <Button
-        disabled={!selectedDate || !selectedTime}
-        onPress={handleSubmit}
-        className="mt-4 bg-barber-primary text-white"
-      >
+      <Button disabled={!selectedDate || !selectedTime || !timePeriod} onPress={handleSubmit} className="mt-4 bg-barber-primary text-white">
         Confirmar Cita
       </Button>
+
+      {/* Modal de confirmación */}
+      <ModalConfirmacion
+        isOpen={isOpen}
+        onOpenChange={onOpenChange}
+        selectedDate={selectedDate ? formatDate(selectedDate) : ""}
+        selectedTime={selectedTime || ""}
+      />
     </div>
   );
 };
