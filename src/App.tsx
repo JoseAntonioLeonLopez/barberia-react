@@ -1,4 +1,3 @@
-// App.tsx
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import Auth from "./Auth/pages/Auth";
 import Dashboard from "./Dashboard/pages/Dashboard";
@@ -12,9 +11,9 @@ import InicioComponent from "./Home/components/InicioComponent";
 import LogoutComponent from "./Global Components/Logout";
 import NotFoundComponent from "./Global Components/404";
 import UsersComponent from "./Dashboard/components/Users";
-import Appointments from "./Dashboard/components/Appointments";
 import { AuthProvider } from "./Auth/context/AuthContext";
 import ProtectedRoute from "./Auth/components/ProtectedRoute";
+import Appointments from "./Global Components/Appointments";
 
 const App = () => {
   return (
