@@ -1,8 +1,10 @@
 import { Input, Button } from "@nextui-org/react";
 import { useState } from "react";
 import axios from "axios";
-import { useNavigate } from "react-router-dom"; // Importa useNavigate para redirigir
+import { useNavigate } from "react-router-dom";
 import { getRoleFromToken } from "../../Service/AuthService";
+import { API_URL } from "../../Service/Url";
+import { useAuth } from "../context/AuthContext"; // Importar el hook de autenticación
 
 const LoginForm = () => {
   const [email, setEmail] = useState("");
@@ -10,7 +12,8 @@ const LoginForm = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
-  const navigate = useNavigate(); // Inicializa useNavigate
+  const navigate = useNavigate();
+  const { updateAuth } = useAuth(); // Obtener la función updateAuth para actualizar el contexto
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -24,7 +27,7 @@ const LoginForm = () => {
 
     try {
       const response = await axios.post(
-        "http://localhost:8090/api/security/oauth/token",
+        `${API_URL}security/oauth/token`,
         formData,
         {
           headers: {
@@ -36,6 +39,9 @@ const LoginForm = () => {
 
       const { access_token } = response.data;
       sessionStorage.setItem("access_token", access_token);
+
+      // Actualizar la autenticación después de guardar el token
+      updateAuth();
 
       // Decodifica el JWT y obtiene el rol
       const role = getRoleFromToken(access_token);
