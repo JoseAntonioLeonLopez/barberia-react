@@ -44,7 +44,7 @@ const ServiciosComponent: React.FC = () => {
                 removeWrapper
                 alt="Corte Clásico"
                 className="w-full h-full object-cover"
-                src="https://www.peluqueriastilpla.es/wp-content/uploads/2023/01/peluqueria-hombre-valencia-corte-pelo-hombre.jpg"
+                src="src/Home/img/Corte Clásico.jpg"
                 style={{ opacity: 0.3 }}
               />
             </div>
@@ -66,7 +66,7 @@ const ServiciosComponent: React.FC = () => {
                 removeWrapper
                 alt="Barba & Afeitado"
                 className="w-full h-full object-cover"
-                src="https://sevilla.abc.es/contenidopromocionado/wp-content/uploads/sites/2/2019/07/portada-wp-barbas.jpg"
+                src="src\Home\img\Barba & Afeitado.jpg"
                 style={{ opacity: 0.3 }}
               />
             </div>
@@ -88,7 +88,7 @@ const ServiciosComponent: React.FC = () => {
                 removeWrapper
                 alt="Corte de Precisión"
                 className="w-full h-full object-cover"
-                src="https://www.bacanbarberia.com.ar/public/assets/img/galeria3_3.jpg"
+                src="src\Home\img\Corte de Precisión.jpg"
                 style={{ opacity: 0.3 }}
               />
             </div>
@@ -110,7 +110,7 @@ const ServiciosComponent: React.FC = () => {
                 removeWrapper
                 alt="Tintura"
                 className="w-full h-full scale-125 -translate-y-6 object-cover"
-                src="https://i.pinimg.com/236x/33/17/e8/3317e81456edd752c4166508853536d2.jpg"
+                src="src\Home\img\Tintura.jpg"
                 style={{ opacity: 0.3 }}
               />
             </div>
@@ -132,7 +132,7 @@ const ServiciosComponent: React.FC = () => {
                 removeWrapper
                 alt="Faciales & Relax"
                 className="w-full h-full object-cover"
-                src="https://img.freepik.com/premium-photo/man-getting-hair-wash-barber-shop_53876-135327.jpg"
+                src="src\Home\img\Faciales & Relax.avif"
                 style={{ opacity: 0.3 }}
               />
             </div>

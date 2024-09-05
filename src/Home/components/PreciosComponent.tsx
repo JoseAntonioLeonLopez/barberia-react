@@ -5,32 +5,32 @@ const PreciosComponent: React.FC = () => {
   const services = [
     {
       title: "Corte de Cabello",
-      img: "https://images.pexels.com/photos/3993443/pexels-photo-3993443.jpeg", // Imagen ilustrativa de corte de cabello
+      img: "src/Home/img/Corte de Cabello-min.jpeg", // Imagen ilustrativa de corte de cabello
       price: "€15.00",
     },
     {
       title: "Afeitado Clásico",
-      img: "https://www.elaristocrata.com/wp-content/uploads/2022/10/Fot1.jpeg", // Imagen ilustrativa de afeitado
+      img: "src/Home/img/Afeitado Clásico-min.jpeg", // Imagen ilustrativa de afeitado
       price: "€10.00",
     },
     {
       title: "Tinte de Barba",
-      img: "https://www.alpel.es/i/u/como-hacer-afeitado-clasico.jpg", // Imagen ilustrativa de tinte de barba
+      img: "src/Home/img/Tinte de Barba-min.jpg", // Imagen ilustrativa de tinte de barba
       price: "€12.50",
     },
     {
       title: "Tratamiento Capilar",
-      img: "https://images.pexels.com/photos/3992870/pexels-photo-3992870.jpeg", // Imagen ilustrativa de tratamiento capilar
+      img: "src/Home/img/Tratamiento Capilar-min.jpeg", // Imagen ilustrativa de tratamiento capilar
       price: "€20.00",
     },
     {
       title: "Lavado y Peinado",
-      img: "https://images.pexels.com/photos/3993444/pexels-photo-3993444.jpeg", // Imagen ilustrativa de lavado y peinado
+      img: "src/Home/img/Lavado y Peinado-min.jpeg", // Imagen ilustrativa de lavado y peinado
       price: "€8.00",
     },
     {
       title: "Corte Infantil",
-      img: "https://static.2x3cdn.com/assets/seo-keywords/mobile_square/jpeg/MdZZu7FDEq0Z.jpeg", // Imagen ilustrativa de corte infantil
+      img: "src/Home/img/Corte Infantil-min.jpeg", // Imagen ilustrativa de corte infantil
       price: "€10.00",
     }
   ];

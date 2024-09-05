@@ -1,16 +1,16 @@
-import React, { useState } from "react";
+import React, { useState, useMemo } from "react";
 import { Calendar, Button, Input, Select, SelectItem, useDisclosure } from "@nextui-org/react";
 import { getLocalTimeZone, today } from "@internationalized/date";
 import { DateValue } from "@react-types/calendar";
 import { isHoliday, formatDate } from "../utils/dateUtils";
 import { afternoon, morning } from "../utils/timeUtils";
-import { ModalConfirmacion } from "./ModalConfirmacion"; // Importar el modal de confirmación
+import { ModalConfirmacion } from "./ModalConfirmacion";
 
 const ReservarCitaComponent: React.FC = () => {
   const [selectedDate, setSelectedDate] = useState<DateValue | null>(null);
   const [selectedTime, setSelectedTime] = useState<string | null>(null);
   const [timePeriod, setTimePeriod] = useState<"morning" | "afternoon" | null>(null);
-  const { isOpen, onOpen, onOpenChange } = useDisclosure(); // Usar useDisclosure para el modal
+  const { isOpen, onOpen, onOpenChange } = useDisclosure();
 
   // Obtener la fecha actual con formato de CalendarDate
   const todayDate = today(getLocalTimeZone());
@@ -37,18 +37,46 @@ const ReservarCitaComponent: React.FC = () => {
 
   const handleSubmit = () => {
     if (selectedDate && selectedTime) {
-      // Abrir el modal de confirmación
       onOpen();
     }
   };
 
+  // Determinar si es sábado
   const isSaturday = selectedDate
     ? new Date(selectedDate.year, selectedDate.month - 1, selectedDate.day).getDay() === 6
     : false;
 
+  // Obtener los slots de mañana y tarde
   const morningSlots = morning;
   const afternoonSlots = afternoon;
-  const availableSlots = timePeriod === "morning" ? morningSlots : timePeriod === "afternoon" ? afternoonSlots : [...morningSlots, ...afternoonSlots];
+
+  // Obtener la hora actual
+  const now = new Date();
+  const currentHour = now.getHours();
+  const currentMinutes = now.getMinutes();
+
+  // Función para filtrar los slots disponibles
+  const filterAvailableSlots = (slots: { key: string; label: string }[]) => {
+    return slots.filter((slot) => {
+      const [slotHour, slotMinute] = slot.key.split(":").map(Number);
+      // Comparar la hora del slot con la hora actual
+      if (selectedDate && timePeriod) {
+        const isToday = selectedDate.year === now.getFullYear() &&
+          selectedDate.month === now.getMonth() + 1 &&
+          selectedDate.day === now.getDate();
+        if (isToday && (slotHour < currentHour || (slotHour === currentHour && slotMinute <= currentMinutes))) {
+          return false;
+        }
+      }
+      return true;
+    });
+  };
+
+  // Determinar los slots disponibles en función del período seleccionado
+  const availableSlots = useMemo(() => {
+    const slots = timePeriod === "morning" ? morningSlots : timePeriod === "afternoon" ? afternoonSlots : [...morningSlots, ...afternoonSlots];
+    return filterAvailableSlots(slots);
+  }, [timePeriod, selectedDate]);
 
   return (
     <div className="flex flex-col items-center p-4 font-barber bg-barber-bg dark:bg-dark-mode-bg2 min-h-screen">
