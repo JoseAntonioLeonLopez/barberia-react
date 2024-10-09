@@ -1,5 +1,5 @@
 import React, { createContext, useContext, ReactNode, useState, useEffect } from 'react';
-import { getRoleFromToken, decodeJwt } from '../../Service/AuthService'; // Asegúrate de que parseJwt está definido
+import { getRoleFromToken, decodeJwt } from '../../Service/AuthService';
 
 interface AuthContextType {
   isAuthenticated: boolean;
@@ -63,9 +63,17 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     updateAuth();
   }, []);
 
+  // Verificar y actualizar el estado cuando el token cambie
+  useEffect(() => {
+    const token = sessionStorage.getItem('access_token');
+    if (token) {
+      updateAuth();
+    }
+  }, [isAuthenticated]);
+
   return (
     <AuthContext.Provider value={{ isAuthenticated, role, loading, updateAuth }}>
-      {children}
+      {!loading && children}
     </AuthContext.Provider>
   );
 };
@@ -77,4 +85,3 @@ export const useAuth = () => {
   }
   return context;
 };
-

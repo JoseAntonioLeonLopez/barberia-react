@@ -1,61 +1,66 @@
-import React, { useState } from 'react';
-import { Input, Button } from '@nextui-org/react';
-import PasswordField from './PasswordField';
-import ConfirmPasswordField from './ConfirmPasswordField';
-import axios from 'axios';
-import { useNavigate } from 'react-router-dom';
-import { API_URL } from '../../Service/Url';
+import React, { useState } from "react";
+import { Input, Button } from "@nextui-org/react";
+import PasswordField from "./PasswordField";
+import ConfirmPasswordField from "./ConfirmPasswordField";
+import axios from "axios";
+import { useNavigate } from "react-router-dom";
+import { API_URL } from "../../Service/Url";
+import { useAuth } from "../context/AuthContext"; 
 
 // Patrón de validación para la contraseña
-const PASSWORD_PATTERN = /^(?=.*[A-Z])(?=.*[a-z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
+const PASSWORD_PATTERN =
+  /^(?=.*[A-Z])(?=.*[a-z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
 
 const RegisterForm = () => {
   const [form, setForm] = useState({
-    nombre: '',
-    apellido1: '',
-    apellido2: '',
-    email: '',
-    telefono: '',
-    password: '',
-    confirmPassword: '',
+    nombre: "",
+    apellido1: "",
+    apellido2: "",
+    email: "",
+    telefono: "",
+    password: "",
+    confirmPassword: "",
   });
 
-  const [phoneError, setPhoneError] = useState('');
-  const [passwordError, setPasswordError] = useState('');
-  const [confirmPasswordError, setConfirmPasswordError] = useState('');
+  const [phoneError, setPhoneError] = useState("");
+  const [passwordError, setPasswordError] = useState("");
+  const [confirmPasswordError, setConfirmPasswordError] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [apiError, setApiError] = useState(''); // Para mostrar los errores del backend
+  const [apiError, setApiError] = useState(""); // Para mostrar los errores del backend
 
   const navigate = useNavigate(); // Hook para redirigir al usuario
+  const { updateAuth } = useAuth(); // Hook para acceder a la función login del AuthContext
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
 
-    if (name === 'telefono') {
-      const phoneNumber = value.replace(/^\+34\s*/, '').replace(/\s+/g, '');
+    if (name === "telefono") {
+      const phoneNumber = value.replace(/^\+34\s*/, "").replace(/\s+/g, "");
       setForm((prev) => ({ ...prev, [name]: phoneNumber }));
 
       if (!validatePhoneNumber(`+34 ${phoneNumber}`)) {
-        setPhoneError('Número de teléfono no válido');
+        setPhoneError("Número de teléfono no válido");
       } else {
-        setPhoneError('');
+        setPhoneError("");
       }
     } else {
       setForm((prev) => ({ ...prev, [name]: value }));
 
-      if (name === 'password') {
+      if (name === "password") {
         if (!PASSWORD_PATTERN.test(value)) {
-          setPasswordError('La contraseña debe tener al menos 8 caracteres, una letra mayúscula, una letra minúscula, un número y un carácter especial.');
+          setPasswordError(
+            "La contraseña debe tener 8 o más caracteres, una mayúscula, una minúscula, un número y un carácter especial (@$!%*?&)."
+          );
         } else {
-          setPasswordError('');
+          setPasswordError("");
         }
       }
 
-      if (name === 'confirmPassword') {
+      if (name === "confirmPassword") {
         if (value !== form.password) {
-          setConfirmPasswordError('Las contraseñas no coinciden');
+          setConfirmPasswordError("Las contraseñas no coinciden");
         } else {
-          setConfirmPasswordError('');
+          setConfirmPasswordError("");
         }
       }
     }
@@ -75,10 +80,10 @@ const RegisterForm = () => {
     }
 
     setIsSubmitting(true);
-    setApiError(''); // Limpiar los errores previos
+    setApiError(""); // Limpiar los errores previos
 
     try {
-      // Aquí haces la solicitud POST a la API para registrar al usuario
+      // Registro del usuario
       await axios.post(`${API_URL}users`, {
         email: form.email,
         password: form.password,
@@ -89,36 +94,47 @@ const RegisterForm = () => {
         roleId: 2, // El rol por defecto, puede ser CLIENT (2) o según cómo lo manejes
       });
 
-      // Si el registro es exitoso, inicia sesión automáticamente
+      // Si el registro es exitoso, iniciar sesión automáticamente
       const loginFormData = new URLSearchParams();
-      loginFormData.append('username', form.email);
-      loginFormData.append('password', form.password);
-      loginFormData.append('grant_type', 'password');
+      loginFormData.append("username", form.email);
+      loginFormData.append("password", form.password);
+      loginFormData.append("grant_type", "password");
 
       const loginResponse = await axios.post(
         `${API_URL}security/oauth/token`,
         loginFormData,
         {
           headers: {
-            'Content-Type': 'application/x-www-form-urlencoded',
-            Authorization: 'Basic ZnJvbnRlbmQ6MTIzNDU=', // Credenciales base64 codificadas de cliente (clientId:clientSecret)
+            "Content-Type": "application/x-www-form-urlencoded",
+            Authorization: "Basic ZnJvbnRlbmQ6MTIzNDU=", // Credenciales base64 codificadas de cliente (clientId:clientSecret)
           },
         }
       );
 
       const { access_token } = loginResponse.data;
-      sessionStorage.setItem('access_token', access_token);
-      navigate('/');
+
+      if (access_token) {
+        sessionStorage.setItem("access_token", access_token);
+
+        // Llama a updateAuth para actualizar el estado de autenticación y rol
+        updateAuth();
+
+        navigate("/"); // Redirige si el token es correcto
+      } else {
+        setApiError("No se pudo obtener el token de acceso.");
+      }
+
+      setIsSubmitting(false);
+      
     } catch (error: any) {
       // Maneja los errores de la API y los muestra
       if (axios.isAxiosError(error) && error.response) {
-        const errorMessage = error.response.data?.message || 'Error al registrar el usuario.';
+        const errorMessage =
+          error.response.data?.message || "Error al registrar el usuario.";
         setApiError(errorMessage);
       } else {
-        setApiError('Error en la red. Por favor, inténtalo de nuevo.');
+        setApiError("Error en la red. Por favor, inténtalo de nuevo.");
       }
-    } finally {
-      setIsSubmitting(false);
     }
   };
 
@@ -181,15 +197,14 @@ const RegisterForm = () => {
         password={form.password}
         errorMessage={confirmPasswordError}
       />
-
-      {apiError && <p className="text-red-500 mb-2">{apiError}</p>} {/* Mostrar errores del backend */}
-
+      {apiError && <p className="text-red-500 mb-2">{apiError}</p>}{" "}
+      {/* Mostrar errores del backend */}
       <Button
         type="submit"
         className="w-full bg-barber-primary"
         disabled={isSubmitting}
       >
-        {isSubmitting ? 'Enviando...' : 'Registrarse'}
+        {isSubmitting ? "Enviando..." : "Registrarse"}
       </Button>
     </form>
   );
