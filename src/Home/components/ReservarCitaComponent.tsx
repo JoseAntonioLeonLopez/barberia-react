@@ -1,142 +1,49 @@
-import React, { useState, useMemo } from "react";
-import { Calendar, Button, Input, Select, SelectItem, useDisclosure } from "@nextui-org/react";
-import { getLocalTimeZone, today } from "@internationalized/date";
-import { DateValue } from "@react-types/calendar";
-import { isHoliday, formatDate } from "../utils/dateUtils";
-import { afternoon, morning } from "../utils/timeUtils";
+import React, { useState } from "react";
+import { DateValue, useDisclosure } from "@nextui-org/react";
 import { ModalConfirmacion } from "./ModalConfirmacion";
+import { formatDate } from "../utils/dateUtils";
+import AppointmentForm from "../../Global Components/AppointmentForm";
 
 const ReservarCitaComponent: React.FC = () => {
-  const [selectedDate, setSelectedDate] = useState<DateValue | null>(null);
-  const [selectedTime, setSelectedTime] = useState<string | null>(null);
-  const [timePeriod, setTimePeriod] = useState<"morning" | "afternoon" | null>(null);
   const { isOpen, onOpen, onOpenChange } = useDisclosure();
+  const [appointmentData, setAppointmentData] = useState<{
+    selectedDate: string | null;
+    selectedTime: string | null;
+    selectedBarber: string | null;
+  }>({
+    selectedDate: null,
+    selectedTime: null,
+    selectedBarber: null,
+  });
 
-  // Obtener la fecha actual con formato de CalendarDate
-  const todayDate = today(getLocalTimeZone());
-  const maxDate = todayDate.add({ months: 3 });
-
-  // Verificar si la fecha está disponible
-  const isDateUnavailable = (date: DateValue) => {
-    const jsDate = new Date(date.year, date.month - 1, date.day);
-    const dayOfWeek = jsDate.getDay();
-    return (
-      date.compare(todayDate) < 0 || dayOfWeek === 0 || isHoliday(date)
-    );
-  };
-
-  const handleDateChange = (date: DateValue) => {
-    setSelectedDate(date);
-    setSelectedTime(null);
-    setTimePeriod(null);
-  };
-
-  const handleTimeChange = (value: string) => {
-    setSelectedTime(value);
-  };
-
-  const handleSubmit = () => {
-    if (selectedDate && selectedTime) {
-      onOpen();
-    }
-  };
-
-  // Determinar si es sábado
-  const isSaturday = selectedDate
-    ? new Date(selectedDate.year, selectedDate.month - 1, selectedDate.day).getDay() === 6
-    : false;
-
-  // Obtener los slots de mañana y tarde
-  const morningSlots = morning;
-  const afternoonSlots = afternoon;
-
-  // Obtener la hora actual
-  const now = new Date();
-  const currentHour = now.getHours();
-  const currentMinutes = now.getMinutes();
-
-  // Función para filtrar los slots disponibles
-  const filterAvailableSlots = (slots: { key: string; label: string }[]) => {
-    return slots.filter((slot) => {
-      const [slotHour, slotMinute] = slot.key.split(":").map(Number);
-      // Comparar la hora del slot con la hora actual
-      if (selectedDate && timePeriod) {
-        const isToday = selectedDate.year === now.getFullYear() &&
-          selectedDate.month === now.getMonth() + 1 &&
-          selectedDate.day === now.getDate();
-        if (isToday && (slotHour < currentHour || (slotHour === currentHour && slotMinute <= currentMinutes))) {
-          return false;
-        }
-      }
-      return true;
+  const handleSubmit = (data: {
+    selectedDate: DateValue | null;
+    selectedTime: string | null;
+    selectedBarber: string | null;
+  }) => {
+    setAppointmentData({
+      selectedDate: data.selectedDate ? formatDate(data.selectedDate) : null,
+      selectedTime: data.selectedTime,
+      selectedBarber: data.selectedBarber,
     });
+    onOpen(); // Abre el modal de confirmación
   };
-
-  // Determinar los slots disponibles en función del período seleccionado
-  const availableSlots = useMemo(() => {
-    const slots = timePeriod === "morning" ? morningSlots : timePeriod === "afternoon" ? afternoonSlots : [...morningSlots, ...afternoonSlots];
-    return filterAvailableSlots(slots);
-  }, [timePeriod, selectedDate]);
 
   return (
     <div className="flex flex-col items-center p-4 font-barber bg-barber-bg dark:bg-dark-mode-bg2 min-h-screen">
-      <h1 className="text-3xl font-bold mb-6 text-barber-primary">Reservar Cita</h1>
-
-      {/* Calendario para elegir fecha */}
-      <Calendar
-        minValue={todayDate}
-        maxValue={maxDate}
-        isDateUnavailable={isDateUnavailable}
-        onChange={handleDateChange}
-        value={selectedDate}
-      />
-
-      {/* Mostrar la fecha seleccionada */}
-      <div className="mt-4">
-        <Input readOnly disabled value={formatDate(selectedDate)} label="Fecha seleccionada" />
-      </div>
-
-      {/* Botones para seleccionar Mañana o Tarde */}
-      {selectedDate && (
-        <div className="mt-4 flex space-x-4">
-          {!isSaturday && (
-            <>
-              <Button onPress={() => setTimePeriod("morning")} color={timePeriod === "morning" ? "primary" : "default"}>
-                Mañana
-              </Button>
-              <Button onPress={() => setTimePeriod("afternoon")} color={timePeriod === "afternoon" ? "primary" : "default"}>
-                Tarde
-              </Button>
-            </>
-          )}
-          {isSaturday && (
-            <Button onPress={() => setTimePeriod("morning")} color={timePeriod === "morning" ? "primary" : "default"}>
-              Mañana
-            </Button>
-          )}
-        </div>
-      )}
-
-      {/* Selección de hora */}
-      {selectedDate && timePeriod && (
-        <Select placeholder="Selecciona una hora" value={selectedTime || ""} onChange={(e) => handleTimeChange(e.target.value)} fullWidth className="w-64 mt-4">
-          {availableSlots.map((slot) => (
-            <SelectItem key={slot.key}>{slot.label}</SelectItem>
-          ))}
-        </Select>
-      )}
-
-      {/* Botón para confirmar la cita */}
-      <Button disabled={!selectedDate || !selectedTime || !timePeriod} onPress={handleSubmit} className="mt-4 bg-barber-primary text-white">
-        Confirmar Cita
-      </Button>
+      <h1 className="text-3xl font-bold mb-6 text-barber-primary">
+        Reservar Cita
+      </h1>
+      {/* Uso del componente AppointmentForm */}
+      <AppointmentForm onSubmit={handleSubmit} />
 
       {/* Modal de confirmación */}
       <ModalConfirmacion
         isOpen={isOpen}
         onOpenChange={onOpenChange}
-        selectedDate={selectedDate ? formatDate(selectedDate) : ""}
-        selectedTime={selectedTime || ""}
+        selectedDate={appointmentData.selectedDate || ""}
+        selectedTime={appointmentData.selectedTime || ""}
+        barber={appointmentData.selectedBarber || ""}
       />
     </div>
   );

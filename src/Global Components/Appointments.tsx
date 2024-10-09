@@ -14,109 +14,111 @@ import Swal from "sweetalert2";
 import { API_URL } from "../Service/Url";
 import DetailsAppointment from "./DetailsAppointments";
 import Loading from "./Loading";
+import ModalEditAppointment from "./ModalEditAppointment"; // Importar el modal de edición
 
 const Appointments: React.FC = () => {
   const [appointments, setAppointments] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedAppointment, setSelectedAppointment] = useState<any | null>(
     null
-  ); // Estado para manejar la cita seleccionada
-  const [isModalOpen, setIsModalOpen] = useState(false); // Estado para manejar el modal
+  );
+  const [isModalOpen, setIsModalOpen] = useState(false); // Estado para el modal de detalles
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false); // Estado para el modal de edición
 
-  // Función para obtener la información detallada de un usuario (tanto clientes como barberos)
   const getUserDetails = async (id: number): Promise<any> => {
     try {
       const response = await axios.get(`${API_URL}users/${id}`, {
         headers: {
-          Authorization: `Bearer ${sessionStorage.getItem("access_token")}`, // Añadir token
+          Authorization: `Bearer ${sessionStorage.getItem("access_token")}`,
         },
       });
       return {
         name: response.data.name,
-        phone: response.data.phoneNumber || "N/A", // Asegurarse de que haya un valor para el teléfono
-        email: response.data.email || "N/A", // Asegurarse de que haya un valor para el correo electrónico
+        phone: response.data.phoneNumber || "N/A",
+        email: response.data.email || "N/A",
       };
     } catch (error) {
       console.error(`Error fetching user with ID ${id}:`, error);
-      return { name: "Unknown", phone: "N/A", email: "N/A" }; // Valores por defecto en caso de error
+      return { name: "Unknown", phone: "N/A", email: "N/A" };
     }
   };
 
-  // Cargar citas y obtener detalles de clientes y barberos
-  useEffect(() => {
-    const fetchAppointments = async () => {
-      setLoading(true);
-      try {
-        const response = await axios.get(`${API_URL}appointments`, {
-          headers: {
-            Authorization: `Bearer ${sessionStorage.getItem("access_token")}`,
-          },
+  const fetchAppointments = async () => {
+    setLoading(true);
+    try {
+      const response = await axios.get(`${API_URL}appointments`, {
+        headers: {
+          Authorization: `Bearer ${sessionStorage.getItem("access_token")}`,
+        },
+      });
+
+      if (Array.isArray(response.data) && response.data.length > 0) {
+        const appointmentData = await Promise.all(
+          response.data.map(async (appointment: any) => {
+            const clientDetails = await getUserDetails(appointment.clientId);
+            const barberDetails = await getUserDetails(appointment.barberId);
+            return {
+              ...appointment,
+              clientDetails,
+              barberDetails,
+            };
+          })
+        );
+
+        // Ordenar las citas por fecha
+        appointmentData.sort((a, b) => {
+          return (
+            new Date(a.appointmentDate).getTime() -
+            new Date(b.appointmentDate).getTime()
+          );
         });
 
-        // Verifica si el arreglo de citas está vacío
-        if (Array.isArray(response.data) && response.data.length > 0) {
-          const appointmentData = await Promise.all(
-            response.data.map(async (appointment: any) => {
-              const clientDetails = await getUserDetails(appointment.clientId);
-              const barberDetails = await getUserDetails(appointment.barberId);
-              return {
-                ...appointment,
-                clientDetails,
-                barberDetails,
-              };
-            })
-          );
-          setAppointments(appointmentData);
-        } else {
-          // Si no hay citas, asegúrate de que appointments sea un array vacío
-          setAppointments([]);
-        }
-      } catch (error) {
-        console.error("Error fetching appointments:", error);
-        setAppointments([]); // Si hay error, lo manejamos mostrando que no hay citas.
-      } finally {
-        setLoading(false);
+        setAppointments(appointmentData);
+      } else {
+        setAppointments([]);
       }
-    };
+    } catch (error) {
+      console.error("Error fetching appointments:", error);
+      setAppointments([]);
+    } finally {
+      setLoading(false);
+    }
+  };
 
+  useEffect(() => {
     fetchAppointments();
   }, []);
 
-  // Lógica de eliminar cita con SweetAlert2
   const handleDelete = (id: number) => {
     Swal.fire({
-      title: "Are you sure?",
-      text: "You won't be able to revert this!",
+      title: "¿Estás seguro?",
+      text: "Esto no se puede revertir!",
       icon: "warning",
       showCancelButton: true,
       confirmButtonColor: "#3085d6",
       cancelButtonColor: "#d33",
-      confirmButtonText: "Yes, delete it!",
-      cancelButtonText: "Cancel",
+      confirmButtonText: "Si, eliminalo!",
+      cancelButtonText: "Cancelar",
     }).then((result) => {
       if (result.isConfirmed) {
         setLoading(true);
         axios
           .delete(`${API_URL}appointments/${id}`, {
             headers: {
-              Authorization: `Bearer ${sessionStorage.getItem("access_token")}`, // Añadir token
+              Authorization: `Bearer ${sessionStorage.getItem("access_token")}`,
             },
           })
           .then(() => {
             setAppointments((prevAppointments) =>
               prevAppointments.filter((appointment) => appointment.id !== id)
             );
-            Swal.fire(
-              "Deleted!",
-              "Your appointment has been deleted.",
-              "success"
-            );
+            Swal.fire("Eliminada!", "Tu cita ha sido eliminada.", "success");
           })
           .catch((error) => {
             console.error("Error deleting appointment:", error);
             Swal.fire(
               "Error!",
-              "There was an issue deleting the appointment.",
+              "A ocurrido algo al eliminar tu cita.",
               "error"
             );
           })
@@ -127,19 +129,31 @@ const Appointments: React.FC = () => {
     });
   };
 
-  const handleEdit = (id: number) => {
-    alert(`Editing appointment ID: ${id}`);
+  const handleEdit = (appointment: any) => {
+    setSelectedAppointment(appointment); // Establecer la cita seleccionada
+    setIsEditModalOpen(true); // Abrir modal de edición
   };
 
   const handleViewDetails = (appointment: any) => {
-    setSelectedAppointment(appointment); // Setear la cita seleccionada
-    setIsModalOpen(true); // Abrir modal
+    setSelectedAppointment(appointment); // Establecer la cita seleccionada
+    setIsModalOpen(true); // Abrir modal de detalles
+  };
+
+  const formatDateTime = (dateTimeString: string) => {
+    const date = new Date(dateTimeString);
+    return date.toLocaleString("es-ES", {
+      day: "2-digit",
+      month: "2-digit",
+      year: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
+    });
   };
 
   const columns = [
     { uid: "id", name: "ID" },
-    { uid: "clientDetails", name: "Client Name" }, // Mostrar el nombre del cliente
-    { uid: "barberDetails", name: "Barber Name" }, // Mostrar el nombre del barbero
+    { uid: "clientDetails", name: "Client Name" },
+    { uid: "barberDetails", name: "Barber Name" },
     { uid: "appointmentDate", name: "Date & Time" },
     { uid: "actions", name: "Actions" },
   ];
@@ -147,11 +161,10 @@ const Appointments: React.FC = () => {
   return (
     <>
       {loading ? (
-        <Loading /> // Muestra el componente de carga si está cargando
+        <Loading />
       ) : (
         <>
           {appointments.length > 0 ? (
-            // Si hay citas, mostramos la tabla
             <Table aria-label="Appointments Table">
               <TableHeader columns={columns}>
                 {(column) => (
@@ -164,7 +177,7 @@ const Appointments: React.FC = () => {
                     {columns.map((column) => (
                       <TableCell key={column.uid}>
                         {column.uid === "actions" ? (
-                          <div className="flex gap-2 justify-center">
+                          <div className="flex gap-2">
                             <Tooltip content="View Details">
                               <span
                                 className="cursor-pointer"
@@ -175,15 +188,15 @@ const Appointments: React.FC = () => {
                             </Tooltip>
                             <Tooltip content="Edit">
                               <span
-                                className="cursor-pointer"
-                                onClick={() => handleEdit(appointment.id)}
+                                className="cursor-pointer text-blue-400"
+                                onClick={() => handleEdit(appointment)}
                               >
                                 <FaEdit />
                               </span>
                             </Tooltip>
                             <Tooltip content="Delete" color="danger">
                               <span
-                                className="cursor-pointer"
+                                className="cursor-pointer text-red-500"
                                 onClick={() => handleDelete(appointment.id)}
                               >
                                 <FaTrash />
@@ -194,6 +207,8 @@ const Appointments: React.FC = () => {
                           appointment.clientDetails.name
                         ) : column.uid === "barberDetails" ? (
                           appointment.barberDetails.name
+                        ) : column.uid === "appointmentDate" ? (
+                          formatDateTime(appointment.appointmentDate)
                         ) : (
                           appointment[column.uid]
                         )}
@@ -204,7 +219,6 @@ const Appointments: React.FC = () => {
               </TableBody>
             </Table>
           ) : (
-            // Si no hay citas, mostramos el mensaje
             <div className="text-center mt-3 font-barber">
               <h3>No hay citas</h3>
             </div>
@@ -216,6 +230,16 @@ const Appointments: React.FC = () => {
               appointment={selectedAppointment}
               isOpen={isModalOpen}
               onClose={() => setIsModalOpen(false)}
+            />
+          )}
+
+          {/* Modal para editar la cita */}
+          {selectedAppointment && (
+            <ModalEditAppointment
+              appointment={selectedAppointment}
+              isOpen={isEditModalOpen}
+              onClose={() => setIsEditModalOpen(false)}
+              onUpdate={fetchAppointments} // Actualizar citas después de la edición
             />
           )}
         </>

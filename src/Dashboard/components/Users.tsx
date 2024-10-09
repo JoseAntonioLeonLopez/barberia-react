@@ -1,38 +1,102 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { Table, TableHeader, TableColumn, TableBody, TableRow, TableCell, Tooltip } from "@nextui-org/react";
-import { FaEye, FaEdit } from "react-icons/fa";
+import { FaEye, FaTrash } from "react-icons/fa";
+import Swal from "sweetalert2";
 import { API_URL } from "../../Service/Url";
 import Loading from "../../Global Components/Loading";
+import UserDetailsModal from "./UserDetailsModal";
 
 const Users: React.FC = () => {
   const [users, setUsers] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [selectedUser, setSelectedUser] = useState<any | null>(null);
+  const [isDetailsModalOpen, setIsDetailsModalOpen] = useState(false);
 
   const token = sessionStorage.getItem("access_token");
 
+  // Función para obtener el nombre del rol
+  const getRoleName = async (roleId: number) => {
+    try {
+      const response = await axios.get(`${API_URL}roles/${roleId}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      return response.data.name; // Suponiendo que la respuesta contiene un campo 'name'
+    } catch (error) {
+      console.error("Error fetching role:", error);
+      return "Unknown Role"; // Retornar un valor por defecto en caso de error
+    }
+  };
+
   // Cargar usuarios al montar el componente
   useEffect(() => {
-    setLoading(true);
-    axios
-      .get(`${API_URL}users`, {
-        headers: {
-          Authorization: `Bearer ${token}`, // Pasar el token en la petición
-        },
-      })
-      .then((response) => {
-        setUsers(response.data);
-      })
-      .catch((error) => {
+    const fetchUsers = async () => {
+      setLoading(true);
+      try {
+        const response = await axios.get(`${API_URL}users`, {
+          headers: {
+            Authorization: `Bearer ${token}`, // Pasar el token en la petición
+          },
+        });
+
+        // Obtener el nombre del rol para cada usuario
+        const usersWithRoles = await Promise.all(
+          response.data.map(async (user: { roleId: number; }) => {
+            const roleName = await getRoleName(user.roleId);
+            return { ...user, roleName }; // Incluir el nombre del rol en el objeto del usuario
+          })
+        );
+
+        setUsers(usersWithRoles);
+      } catch (error) {
         console.error("Error fetching users:", error);
-      })
-      .finally(() => {
+      } finally {
         setLoading(false);
-      });
+      }
+    };
+
+    fetchUsers();
   }, [token]);
 
-  const handleEdit = (id: number) => {
-    alert(`Editing user ID: ${id}`);
+  const handleViewDetails = (user: any) => {
+    setSelectedUser(user);
+    setIsDetailsModalOpen(true);
+  };
+
+  const handleDelete = (id: number) => {
+    Swal.fire({
+      title: "¿Estás seguro?",
+      text: "Esto no se puede revertir!",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#3085d6",
+      cancelButtonColor: "#d33",
+      confirmButtonText: "Sí, eliminalo!",
+      cancelButtonText: "Cancelar",
+    }).then((result) => {
+      if (result.isConfirmed) {
+        setLoading(true);
+        axios
+          .delete(`${API_URL}users/${id}`, {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          })
+          .then(() => {
+            setUsers((prevUsers) => prevUsers.filter((user) => user.id !== id));
+            Swal.fire("Eliminado!", "El usuario ha sido eliminado.", "success");
+          })
+          .catch((error) => {
+            console.error("Error deleting user:", error);
+            Swal.fire("Error!", "Ocurrió un error al eliminar el usuario.", "error");
+          })
+          .finally(() => {
+            setLoading(false);
+          });
+      }
+    });
   };
 
   const columns = [
@@ -40,7 +104,7 @@ const Users: React.FC = () => {
     { uid: "name", name: "Name" },
     { uid: "email", name: "Email" },
     { uid: "phoneNumber", name: "Phone Number" },
-    { uid: "roleId", name: "Role ID" },
+    { uid: "roleName", name: "Role Name" }, // Cambiado a 'roleName'
     { uid: "actions", name: "Actions" },
   ];
 
@@ -60,23 +124,26 @@ const Users: React.FC = () => {
                   {columns.map((column) => (
                     <TableCell key={column.uid}>
                       {column.uid === "actions" ? (
-                        <div className="flex gap-2 justify-center">
+                        <div className="flex gap-2">
                           <Tooltip content="View Details">
-                            <span className="cursor-pointer">
+                            <span
+                              className="cursor-pointer"
+                              onClick={() => handleViewDetails(user)}
+                            >
                               <FaEye />
                             </span>
                           </Tooltip>
-                          <Tooltip content="Edit">
+                          <Tooltip content="Delete">
                             <span
-                              className="cursor-pointer"
-                              onClick={() => handleEdit(user.id)}
+                              className="cursor-pointer text-red-500"
+                              onClick={() => handleDelete(user.id)}
                             >
-                              <FaEdit />
+                              <FaTrash />
                             </span>
                           </Tooltip>
                         </div>
                       ) : (
-                        user[column.uid]
+                        user[column.uid] // Esto ahora incluirá el nombre del rol
                       )}
                     </TableCell>
                   ))}
@@ -89,6 +156,15 @@ const Users: React.FC = () => {
             )}
           </TableBody>
         </Table>
+      )}
+
+      {/* Modal para detalles del usuario */}
+      {selectedUser && (
+        <UserDetailsModal
+          user={selectedUser}
+          isOpen={isDetailsModalOpen}
+          onClose={() => setIsDetailsModalOpen(false)}
+        />
       )}
     </>
   );

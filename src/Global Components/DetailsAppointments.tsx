@@ -15,6 +15,17 @@ interface DetailsAppointmentProps {
   onClose: () => void; // Función para cerrar el modal
 }
 
+const formatDateTime = (dateTimeString: string) => {
+  const date = new Date(dateTimeString);
+  return date.toLocaleString('es-ES', {
+    day: '2-digit',
+    month: '2-digit',
+    year: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit'
+  });
+};
+
 const DetailsAppointment: React.FC<DetailsAppointmentProps> = ({
   appointment,
   isOpen,
@@ -25,35 +36,37 @@ const DetailsAppointment: React.FC<DetailsAppointmentProps> = ({
       <ModalContent>
         {(onClose) => (
           <>
-            <ModalHeader>Appointment Details</ModalHeader>
+            <ModalHeader>Detalles de la cita</ModalHeader>
             <ModalBody>
+            <strong>Cliente</strong>
               <p>
-                <strong>Client Name:</strong> {appointment.clientDetails.name}
+                {appointment.clientDetails.name}
               </p>
               <p>
-                <strong>Client Phone:</strong> {appointment.clientDetails.phone}
+                +34 {appointment.clientDetails.phone}
               </p>
               <p>
-                <strong>Client Email:</strong> {appointment.clientDetails.email}
+                {appointment.clientDetails.email}
+              </p>
+              <strong className="mt-4">Barbero</strong>
+              <p>
+                {appointment.barberDetails.name}
               </p>
               <p>
-                <strong>Barber Name:</strong> {appointment.barberDetails.name}
+                +34 {appointment.barberDetails.phone}
               </p>
               <p>
-                <strong>Barber Phone:</strong> {appointment.barberDetails.phone}
+                {appointment.barberDetails.email}
               </p>
-              <p>
-                <strong>Barber Email:</strong> {appointment.barberDetails.email}
-              </p>
-              <p>
-                <strong>Appointment Date:</strong>{" "}
-                {appointment.appointmentDate}
+              <p className="mt-4">
+                <strong>Fecha de la cita:</strong>{" "}
+                {formatDateTime(appointment.appointmentDate)} {/* Formatear fecha */}
               </p>
               {/* Agrega más detalles según la estructura de tu cita */}
             </ModalBody>
             <ModalFooter>
               <Button color="danger" variant="light" onPress={onClose}>
-                Close
+                Cerrar
               </Button>
             </ModalFooter>
           </>
