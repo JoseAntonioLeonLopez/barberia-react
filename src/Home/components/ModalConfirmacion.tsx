@@ -74,7 +74,7 @@ export function ModalConfirmacion({
         appointmentDate: formatAppointmentDate(selectedDate, selectedTime),
       };
   
-      const response = await axios.post(`${API_URL}appointments`, appointmentData, {
+      await axios.post(`${API_URL}appointments`, appointmentData, {
         headers: {
           Authorization: `Bearer ${token}`,
           "Content-Type": "application/json",
@@ -95,7 +95,6 @@ export function ModalConfirmacion({
         confirmButtonText: "OK",
       });
   
-      console.log("Cita guardada con éxito:", response.data);
     } catch (error) {
       console.error("Error al guardar la cita:", error);
 

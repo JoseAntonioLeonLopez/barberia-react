@@ -48,7 +48,8 @@ const DetailsAppointment: React.FC<DetailsAppointmentProps> = ({
               <p>
                 {appointment.clientDetails.email}
               </p>
-              <strong className="mt-4">Barbero</strong>
+              <hr />
+              <strong className="">Barbero</strong>
               <p>
                 {appointment.barberDetails.name}
               </p>
@@ -58,10 +59,12 @@ const DetailsAppointment: React.FC<DetailsAppointmentProps> = ({
               <p>
                 {appointment.barberDetails.email}
               </p>
-              <p className="mt-4">
+              <hr />
+              <p className="">
                 <strong>Fecha de la cita:</strong>{" "}
                 {formatDateTime(appointment.appointmentDate)} {/* Formatear fecha */}
               </p>
+              <hr />
               {/* Agrega más detalles según la estructura de tu cita */}
             </ModalBody>
             <ModalFooter>
