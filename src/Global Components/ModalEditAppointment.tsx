@@ -47,8 +47,8 @@ const ModalEditAppointment: React.FC<ModalEditAppointmentProps> = ({
 
       if (response.status === 200) {
         Swal.fire(
-          "Actualizada!",
-          "La cita ha sido actualizada con éxito.",
+          "¡Actualizada!",
+          "La cita se ha actualizado con éxito.",
           "success"
         );
         onUpdate(); // Refrescar la lista de citas después de la actualización

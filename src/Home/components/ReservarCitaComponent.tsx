@@ -31,9 +31,11 @@ const ReservarCitaComponent: React.FC = () => {
 
   return (
     <div className="flex flex-col items-center p-4 font-barber bg-barber-bg dark:bg-dark-mode-bg2 min-h-screen">
-      <h1 className="text-3xl font-bold mb-6 text-barber-primary">
+      <h1 className="text-3xl font-bold mb-4 text-barber-primary">
         Reservar Cita
       </h1>
+      <h2 className="text-xl mb-2">Selecciona el barbero</h2>
+      <h2>👇👇👇</h2>
       {/* Uso del componente AppointmentForm */}
       <AppointmentForm onSubmit={handleSubmit} />
 

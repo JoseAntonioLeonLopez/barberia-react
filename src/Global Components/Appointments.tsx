@@ -92,12 +92,12 @@ const Appointments: React.FC = () => {
   const handleDelete = (id: number) => {
     Swal.fire({
       title: "¿Estás seguro?",
-      text: "Esto no se puede revertir!",
+      text: "¡Esto no se puede revertir!",
       icon: "warning",
       showCancelButton: true,
       confirmButtonColor: "#3085d6",
       cancelButtonColor: "#d33",
-      confirmButtonText: "Si, eliminalo!",
+      confirmButtonText: "¡Si, eliminalo!",
       cancelButtonText: "Cancelar",
     }).then((result) => {
       if (result.isConfirmed) {
@@ -112,12 +112,12 @@ const Appointments: React.FC = () => {
             setAppointments((prevAppointments) =>
               prevAppointments.filter((appointment) => appointment.id !== id)
             );
-            Swal.fire("Eliminada!", "Tu cita ha sido eliminada.", "success");
+            Swal.fire("¡Eliminada!", "Tu cita se ha eliminado.", "success");
           })
           .catch((error) => {
             console.error("Error deleting appointment:", error);
             Swal.fire(
-              "Error!",
+              "¡Error!",
               "A ocurrido algo al eliminar tu cita.",
               "error"
             );

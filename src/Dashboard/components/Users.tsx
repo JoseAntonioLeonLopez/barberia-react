@@ -68,12 +68,12 @@ const Users: React.FC = () => {
   const handleDelete = (id: number) => {
     Swal.fire({
       title: "¿Estás seguro?",
-      text: "Esto no se puede revertir!",
+      text: "¡Esto no se puede revertir!",
       icon: "warning",
       showCancelButton: true,
       confirmButtonColor: "#3085d6",
       cancelButtonColor: "#d33",
-      confirmButtonText: "Sí, eliminalo!",
+      confirmButtonText: "¡Sí, eliminalo!",
       cancelButtonText: "Cancelar",
     }).then((result) => {
       if (result.isConfirmed) {
@@ -86,11 +86,11 @@ const Users: React.FC = () => {
           })
           .then(() => {
             setUsers((prevUsers) => prevUsers.filter((user) => user.id !== id));
-            Swal.fire("Eliminado!", "El usuario ha sido eliminado.", "success");
+            Swal.fire("¡Eliminado!", "El usuario se ha eliminado.", "success");
           })
           .catch((error) => {
             console.error("Error deleting user:", error);
-            Swal.fire("Error!", "Ocurrió un error al eliminar el usuario.", "error");
+            Swal.fire("¡Error!", "Ocurrió un error al eliminar el usuario.", "error");
           })
           .finally(() => {
             setLoading(false);

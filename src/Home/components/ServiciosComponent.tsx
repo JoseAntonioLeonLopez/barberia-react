@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Card, CardHeader, CardFooter, Image, Button } from "@nextui-org/react";
+import { Card, CardHeader, Image, Button } from "@nextui-org/react";
 import { useNavigate } from "react-router-dom";
 
 const ServiciosComponent: React.FC = () => {
@@ -36,6 +36,16 @@ const ServiciosComponent: React.FC = () => {
           </p>
         </div>
 
+        {/* Botón de reservar cita */}
+        <Button
+          className="mb-6"
+          radius="full"
+          size="lg"
+          onClick={() => navigate("/booking")}
+        >
+          Reserva una cita
+        </Button>
+
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 max-w-6xl w-full">
           {/* Servicio 1 */}
           <Card className="h-[300px] relative overflow-hidden">
@@ -52,11 +62,6 @@ const ServiciosComponent: React.FC = () => {
               <p className="text-tiny uppercase font-bold">Corte Clásico</p>
               <h4 className="font-bold text-2xl">Un estilo para cualquier ocasión</h4>
             </CardHeader>
-            <CardFooter className={`absolute ${isDarkMode ? 'bg-black/60' : 'bg-white/60'} bottom-0 z-10 border-t-1 border-default-600`}>
-              <Button radius="full" size="sm" onClick={() => navigate("/booking")}>
-                Reserva una sesión
-              </Button>
-            </CardFooter>
           </Card>
 
           {/* Servicio 2 */}
@@ -74,11 +79,6 @@ const ServiciosComponent: React.FC = () => {
               <p className="text-tiny uppercase font-bold">Barba & Afeitado</p>
               <h4 className="font-bold text-2xl">Cuidado profesional de barba</h4>
             </CardHeader>
-            <CardFooter className={`absolute ${isDarkMode ? 'bg-black/60' : 'bg-white/60'} bottom-0 z-10 border-t-1 border-default-600`}>
-              <Button radius="full" size="sm" onClick={() => navigate("/booking")}>
-                Reservar
-              </Button>
-            </CardFooter>
           </Card>
 
           {/* Servicio 3 */}
@@ -96,11 +96,6 @@ const ServiciosComponent: React.FC = () => {
               <p className="text-tiny uppercase font-bold">Corte de Precisión</p>
               <h4 className="font-bold text-2xl">Los detalles importan</h4>
             </CardHeader>
-            <CardFooter className={`absolute ${isDarkMode ? 'bg-black/60' : 'bg-white/60'} bottom-0 z-10 border-t-1 border-default-600`}>
-              <Button radius="full" size="sm" onClick={() => navigate("/booking")}>
-                Reserva una sesión
-              </Button>
-            </CardFooter>
           </Card>
 
           {/* Servicio 4 */}
@@ -118,11 +113,6 @@ const ServiciosComponent: React.FC = () => {
               <p className="text-tiny uppercase font-bold">Tintes</p>
               <h4 className="font-bold text-2xl">Renueva tu estilo con color</h4>
             </CardHeader>
-            <CardFooter className={`absolute ${isDarkMode ? 'bg-black/60' : 'bg-white/60'} bottom-0 z-10 border-t-1 border-default-600`}>
-              <Button radius="full" size="sm" onClick={() => navigate("/booking")}>
-                Reservar
-              </Button>
-            </CardFooter>
           </Card>
 
           {/* Servicio 5 */}
@@ -140,11 +130,6 @@ const ServiciosComponent: React.FC = () => {
               <p className="text-tiny uppercase font-bold">Faciales & Relax</p>
               <h4 className="font-bold text-2xl">Relájate con nuestros tratamientos</h4>
             </CardHeader>
-            <CardFooter className={`absolute ${isDarkMode ? 'bg-black/60' : 'bg-white/60'} bottom-0 z-10 border-t-1 border-default-600`}>
-              <Button radius="full" size="sm" onClick={() => navigate("/booking")}>
-                Reserva una sesión
-              </Button>
-            </CardFooter>
           </Card>
         </div>
       </div>

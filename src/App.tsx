@@ -14,12 +14,14 @@ import UsersComponent from "./Dashboard/components/Users";
 import { AuthProvider } from "./Auth/context/AuthContext";
 import ProtectedRoute from "./Auth/components/ProtectedRoute";
 import Appointments from "./Global Components/Appointments";
+import ScrollToTop from "./Global Components/ScrollToTop";
 
 const App = () => {
   return (
     <AuthProvider>
       <Router>
         <div className="App">
+        <ScrollToTop />
           <Routes>
             {/* Rutas sin proteger */}
             <Route path="/auth" element={<Auth />} />

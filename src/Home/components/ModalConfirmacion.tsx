@@ -91,7 +91,7 @@ export function ModalConfirmacion({
       Swal.fire({
         icon: "success",
         title: "Cita guardada",
-        text: "La cita ha sido creada exitosamente",
+        text: "La cita se ha creado exitosamente",
         confirmButtonText: "OK",
       });
   
