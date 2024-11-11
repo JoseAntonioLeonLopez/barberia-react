@@ -27,8 +27,8 @@ const App = () => {
             <Route path="/auth" element={<Auth />} />
             <Route path="/logout" element={<LogoutComponent />} />
 
-            {/* Ruta con contenedor Home para CLIENT y ADMIN*/}
-            <Route element={<ProtectedRoute allowedRoles={["CLIENT", "ADMIN"]} />}>
+            {/* Ruta con contenedor Home para CLIENT */}
+            <Route element={<ProtectedRoute allowedRoles={["CLIENT"]} />}>
               <Route path="/" element={<Home />}>
                 <Route path="/" element={<InicioComponent />} />
                 <Route path="services" element={<ServiciosComponent />} />
